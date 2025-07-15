@@ -23,17 +23,17 @@ dsize_display=" 1: 1MB (Very low compression but very fast)\n 2: 2MB\n 3: 4MB\n 
 
 def hashing(newkey):
     start_time=time.perf_counter_ns()
-    for x in range(1000000):
+    for x in range(5000000):
         newkey=hashlib.sha3_512(newkey).digest()
         if (x+1) % 50000 == 0:
-            print(f"\rSHA 512 Hash {x+1:7}/1000000 finished @ {(x+1)/(time.perf_counter_ns()-start_time)*1e9:9.2f} hashes per second",end="",flush=True)
+            print(f"\rSHA 512 Hash {x+1:7}/5000000 finished @ {(x+1)/(time.perf_counter_ns()-start_time)*1e9:9.2f} hashes per second",end="",flush=True)
     print()        
     
     start_time=time.perf_counter_ns()
-    for x in range(1000000):
+    for x in range(5000000):
         newkey=hashlib.sha3_256(newkey).digest()
         if (x+1) % 50000 == 0:
-            print(f"\rSHA 256 Hash {x+1:7}/1000000 finished @ {(x+1)/(time.perf_counter_ns()-start_time)*1e9:9.2f} hashes per second.",end="",flush=True)
+            print(f"\rSHA 256 Hash {x+1:7}/5000000 finished @ {(x+1)/(time.perf_counter_ns()-start_time)*1e9:9.2f} hashes per second.",end="",flush=True)
     print()            
     return newkey
 
@@ -56,9 +56,9 @@ time.sleep(1)
 action1="\0"
 enckey="\0"
 masterkey="\0"
-salt=format(random.randint(0,4294967295),'08x')
-salt=bytes.fromhex(salt)
-
+#salt=format(random.randint(0,4294967295),'08x')
+#salt=bytes.fromhex(salt)
+salt=random.randbytes(16)
 
 
 while action1 != "e" and action1 != "d":
@@ -78,22 +78,22 @@ if action1 == "e":
     enckey=enckey.encode('utf-8')
     newkey=b''.join([enckey,salt])
     masterkey=hashing(newkey)
-    print(masterkey)
+    #print(masterkey)
     dsize=dictionarysize[dsize]
-    print(dsize)
+    #print(dsize)
     #esaltbin=bytes.fromhex(salt)
     encrypt(dsize,masterkey,salt)
-    print(f"Salt: {salt}")
-    print(f"Saltbin: {salt}")
+    #print(f"Salt: {salt}")
+    #print(f"Saltbin: {salt}")
 
 elif action1 == "d":
     inputfolder=os.path.join(pythonpath,"input","input.tri7z")
     outputfolder=os.path.join(pythonpath,"output")
     try:
         with open(inputfolder,"r+b") as file:
-            file.seek(-4,2)
-            salt=file.read(4)
-            file.seek(-4,2)
+            file.seek(-16,2)
+            salt=file.read(16)
+            file.seek(-16,2)
             file.truncate()
     except FileNotFoundError:
         print("\nFILE NOT FOUND!")
